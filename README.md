@@ -77,7 +77,59 @@ src/
 
 ---
 
-## 🚀 Instalación y Ejecución
+## 🏗️ Arquitectura del Sistema
+
+El siguiente diagrama ilustra el flujo de datos y los niveles de seguridad implementados:
+
+```mermaid
+graph TD
+    %% Nodos Principales
+    User([👤 Usuario Final])
+    
+    subgraph Frontier [🖥️ Frontend (PWA / React)]
+        UI[Interfaz Gráfica\n(Tailwind + Framer)]
+        Logic{⚙️ Lógica de Seguridad}
+        Luhn[💳 Validación Luhn]
+        Proctor[👁️ Anti-Cheat / Proctoring]
+    end
+    
+    subgraph Backend [☁️ Supabase BaaS]
+        Auth[🔐 Authentication\n(JWT / RLS)]
+        DB[(🗄️ Database\nPostgreSQL)]
+    end
+    
+    subgraph Compliance [⚖️ Trazabilidad]
+        Logs[(📜 Audit Logs\nForensic Trail)]
+    end
+
+    %% Relaciones
+    User ==>|Interacción| UI
+    UI -->|Eventos| Logic
+    
+    Logic -->|Verificación Financiera| Luhn
+    Logic -->|Monitoreo| Proctor
+    
+    Luhn -->|Request Seguro| Auth
+    Proctor -->|Violación| Auth
+    
+    Auth ==>|Validación de Identidad| DB
+    DB -.->|Registro Automático| Logs
+
+    %% Estilos Cyberpunk
+    style User fill:#000,stroke:#fff,stroke-width:2px,color:#fff
+    style Frontier fill:#0a0a0a,stroke:#bd00ff,stroke-width:2px,color:#fff
+    style Backend fill:#0a0a0a,stroke:#00f3ff,stroke-width:2px,color:#fff
+    style Compliance fill:#0a0a0a,stroke:#ff003c,stroke-width:2px,color:#fff
+    
+    style DB fill:#111,stroke:#00f3ff,stroke-width:2px,shape:cylinder,color:#00f3ff
+    style Logs fill:#111,stroke:#ff003c,stroke-width:2px,shape:cylinder,color:#ff003c
+    
+    style Logic fill:#222,stroke:#fff,color:#fff
+    style Luhn fill:#222,stroke:#bd00ff,color:#bd00ff
+    style Proctor fill:#222,stroke:#ff003c,color:#ff003c
+```
+
+## 🚀 Instalación y Despliegue
 
 Requisitos previos: `Node.js` (v16 o superior).
 

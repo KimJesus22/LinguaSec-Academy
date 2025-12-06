@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LanguageCard from './components/LanguageCard'
 import QuizComponent from './components/QuizComponent'
 import { quizData } from './data/quizData'
@@ -6,8 +6,12 @@ import { tacticalData } from './data/tacticalData'
 import { useSoundContext } from './context/SoundContext'
 import { useSoundEffects } from './hooks/useSoundEffects'
 import TermsModal from './components/TermsModal'
+import ActivityLogModal from './components/ActivityLogModal'
+import PaymentModal from './components/PaymentModal'
+import InstallPWA from './components/InstallPWA'
 import { useAuth } from './context/AuthContext'
 import Auth from './components/Auth'
+import { logUserAction } from './services/auditService'
 
 function App() {
   const { user, signOut } = useAuth();
@@ -15,12 +19,17 @@ function App() {
   const [quizStarted, setQuizStarted] = useState(false)
   const [isTacticalMode, setIsTacticalMode] = useState(false);
 
-  // Legal State
+  // Premium State
+  const [isPremium, setIsPremium] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Legal & Audit State
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showActivityLog, setShowActivityLog] = useState(false);
 
   const { isMuted, toggleMute } = useSoundContext();
-  const { playClick, playHover, playError } = useSoundEffects();
+  const { playClick, playHover, playError, playSuccess } = useSoundEffects();
 
   // Protect Route
   if (!user) {
@@ -54,6 +63,10 @@ function App() {
       alert("DEBE ACEPTAR LOS TÉRMINOS LEGALES PARA CONTINUAR.");
       return;
     }
+
+    // Log Terms Acceptance
+    logUserAction(user.id, 'TERMS_ACCEPTED');
+
     playClick();
     setQuizStarted(true);
   }
@@ -66,6 +79,12 @@ function App() {
   const handleLogout = () => {
     playClick();
     signOut();
+  }
+
+  const handlePremiumSuccess = () => {
+    setIsPremium(true);
+    logUserAction(user.id, 'PREMIUM_PURCHASE');
+    alert("¡Felicidades! Ahora tienes acceso Nivel Premium.");
   }
 
   const languages = [
@@ -91,8 +110,19 @@ function App() {
 
   return (
     <div className="min-h-screen w-full bg-cyber-black flex flex-col items-center p-8 relative overflow-hidden text-white font-sans">
+
+      <InstallPWA />
+
       {/* Top Right Controls */}
-      <div className="absolute top-4 right-4 z-50 flex gap-2">
+      <div className="absolute top-4 right-4 z-50 flex gap-2 items-center">
+        <button
+          onClick={() => { setShowActivityLog(true); playClick(); }}
+          className="hidden md:block px-3 py-1 text-[10px] text-gray-500 hover:text-white border border-transparent hover:border-gray-700 rounded transition-colors uppercase tracking-widest mr-2"
+          title="Ver Historial Forense"
+        >
+          Mis Registros
+        </button>
+
         <button
           onClick={() => { toggleMute(); playClick(); }}
           className="p-2 rounded-full border border-gray-700 bg-gray-900/50 hover:border-neon-cyan hover:text-neon-cyan transition-colors"
@@ -110,8 +140,10 @@ function App() {
         </button>
       </div>
 
-      {/* Terms Modal */}
+      {/* Modals */}
       {showTermsModal && <TermsModal onClose={() => setShowTermsModal(false)} />}
+      {showActivityLog && <ActivityLogModal onClose={() => setShowActivityLog(false)} />}
+      {showPaymentModal && <PaymentModal onClose={() => setShowPaymentModal(false)} onSuccess={handlePremiumSuccess} />}
 
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-50"></div>
@@ -126,7 +158,29 @@ function App() {
         <p className="text-gray-400 text-sm md:text-lg tracking-widest font-mono uppercase">
           Dominio del Idioma. Seguridad Total.
         </p>
-        <p className="text-gray-500 text-xs mt-2">Agente ID: {user.email}</p>
+        <div className="flex flex-col items-center mt-2">
+          <div className="flex items-center gap-2">
+            <p className="text-gray-500 text-xs">Agente ID: {user.email}</p>
+            {isPremium ? (
+              <span className="bg-neon-purple/20 border border-neon-purple text-neon-purple px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(189,0,255,0.4)]">
+                Premium Agent
+              </span>
+            ) : (
+              <button
+                onClick={() => { playClick(); setShowPaymentModal(true); }}
+                className="bg-gray-800 hover:bg-neon-purple/20 text-gray-400 hover:text-white border border-gray-600 hover:border-neon-purple px-2 py-0.5 rounded text-[10px] transition-all uppercase"
+              >
+                Upgrade License ⇧
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowActivityLog(true)}
+            className="md:hidden mt-2 text-[10px] text-gray-600 underline"
+          >
+            Ver Trazabilidad
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}

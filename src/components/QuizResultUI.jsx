@@ -1,177 +1,160 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { generateCertificateFromElement } from '../services/certificateService';
-import { useSoundEffects } from '../hooks/useSoundEffects';
 import CertificateTemplate from './CertificateTemplate';
+import { useSoundEffects } from '../hooks/useSoundEffects';
+import { useAuth } from '../context/AuthContext';
+import { logUserAction } from '../services/auditService';
 
 const QuizResultUI = ({ score, totalQuestions, levelData, mensaje, onRetry, onExit, languageName, isIntruder = false }) => {
-    const [userName, setUserName] = useState('');
+    const percentage = Math.round((score / totalQuestions) * 100);
+    const [candidateName, setCandidateName] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [verificationStep, setVerificationStep] = useState(0); // 0: Idle, 1: Identity, 2: Interpol, 3: NOM-151, 4: Granted
+    const [securityCheckProgress, setSecurityCheckProgress] = useState(0);
+    const [securityStatus, setSecurityStatus] = useState('');
 
-    const { playClick, playHover, playSuccess } = useSoundEffects();
-
-    // Ref for the certificate component
     const certificateRef = useRef(null);
-
-    const handleVerification = () => {
-        playClick();
-        if (!userName.trim()) {
-            alert("IDENTIFICACIÓN REQUERIDA: Ingrese su nombre clave.");
-            return;
-        }
-        setVerificationStep(1);
-    };
-
-    useEffect(() => {
-        if (verificationStep > 0 && verificationStep < 4) {
-            const timer = setTimeout(() => {
-                setVerificationStep(prev => prev + 1);
-                playHover(); // Sound for each step
-            }, 1000); // 1 segundo por paso
-            return () => clearTimeout(timer);
-        }
-    }, [verificationStep, playHover]);
+    const { playClick, playSuccess, playError, playHover } = useSoundEffects();
+    const { user } = useAuth(); // Get user for logging
 
     const handleDownload = async () => {
-        playSuccess();
-        if (!certificateRef.current) return;
-
-        setIsGenerating(true);
-
-        // Small delay to allow UI to update (spinner)
-        setTimeout(async () => {
-            await generateCertificateFromElement(certificateRef.current, `Certificado_LinguaSec_${userName.replace(/\s+/g, '_')}.pdf`);
-            setIsGenerating(false);
-        }, 500);
-    };
-
-    const getLogMessage = () => {
-        switch (verificationStep) {
-            case 1: return "Verificando identidad del usuario...";
-            case 2: return "Consultando base de datos de Interpol...";
-            case 3: return "Validando firma digital conforme a la NOM-151...";
-            case 4: return "ACCESO CONCEDIDO.";
-            default: return "";
+        if (!candidateName.trim()) {
+            playError();
+            alert("Por favor ingresa tu nombre de agente.");
+            return;
         }
+
+        playClick();
+        setIsGenerating(true);
+        setSecurityStatus('Verificando identidad del usuario...');
+
+        // Simulation Sequence
+        setTimeout(() => { setSecurityCheckProgress(30); setSecurityStatus('Consultando base de datos de Interpol...'); }, 1000);
+        setTimeout(() => { setSecurityCheckProgress(70); setSecurityStatus('Validando firma digital conforme a la NOM-151...'); }, 2000);
+        setTimeout(async () => {
+            setSecurityCheckProgress(100);
+            setSecurityStatus('ACCESO CONCEDIDO. Generando documento oficial...');
+            playSuccess();
+
+            try {
+                await generateCertificateFromElement(certificateRef.current, `Certificado_LinguaSec_${candidateName.replace(/\s+/g, '_')}`);
+
+                // Log Action with User ID
+                if (user) {
+                    logUserAction(user.id, 'CERTIFICATE_DOWNLOADED');
+                }
+
+                setSecurityStatus('Descarga completada.');
+            } catch (error) {
+                console.error("Error generating certificate", error);
+                setSecurityStatus('Error en la generación. Intente nuevamente.');
+                playError();
+            } finally {
+                setIsGenerating(false);
+            }
+        }, 3500);
     };
 
     return (
-        <div className={`w-full max-w-2xl bg-cyber-dark border ${isIntruder ? 'border-neon-red shadow-[0_0_50px_rgba(255,7,58,0.3)]' : 'border-neon-cyan/50 shadow-[0_0_50px_rgba(0,243,255,0.15)]'} rounded-2xl p-8 text-center animate-fade-in-up relative overflow-hidden font-mono`}>
-            {/* Hidden Container for Certificate Rendering */}
-            <div style={{ position: 'absolute', top: -10000, left: -10000 }}>
-                <CertificateTemplate
-                    ref={certificateRef}
-                    candidateName={userName}
-                    language={languageName}
-                    level={`${levelData.nivel} - ${levelData.nombre}`}
-                    date={new Date().toLocaleDateString()}
-                    signature="Cmdt. Shepard"
-                />
-            </div>
+        <div className="w-full max-w-2xl bg-cyber-dark border border-gray-700 rounded-2xl p-8 text-center animate-fade-in-up relative overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
 
-            {/* Decorative background glow */}
-            <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 ${isIntruder ? 'bg-neon-red/10' : 'bg-neon-cyan/10'} rounded-full blur-3xl -z-10`}></div>
-
-            <h2 className={`text-3xl md:text-4xl font-bold ${isIntruder ? 'text-neon-red' : 'text-white'} mb-2 uppercase tracking-widest animate-glitch title-glitch`}>
-                {isIntruder ? 'ALERTA DE SEGURIDAD' : 'Informe de Nivelación'}
-            </h2>
-            <div className={`h-1 w-24 ${isIntruder ? 'bg-neon-red shadow-[0_0_10px_#ff073a]' : 'bg-neon-cyan shadow-[0_0_10px_#00f3ff]'} mx-auto mb-8 rounded-full`}></div>
-
-            {!isIntruder && (
-                <div className="mb-4">
-                    <p className="text-gray-400 text-sm font-mono mb-2 uppercase tracking-wider">Puntaje Final</p>
-                    <div className="text-5xl font-mono text-white mb-2">
-                        <span className="text-neon-cyan drop-shadow-[0_0_5px_rgba(0,243,255,0.8)]">{score}</span>
-                        <span className="text-gray-600 text-3xl"> / {totalQuestions}</span>
+            {isIntruder && (
+                <div className="absolute inset-0 bg-red-900/90 z-50 flex flex-col items-center justify-center p-8 text-white animate-pulse">
+                    <h1 className="text-6xl font-bold mb-4">INTRUSO</h1>
+                    <p className="text-2xl font-mono uppercase tracking-widest text-center">
+                        Se ha detectado actividad sospechosa. Su acceso ha sido revocado permanentemente.
+                    </p>
+                    <div className="mt-8 p-4 border border-white rounded">
+                        SCORE: 0 / 10
                     </div>
+                    <button
+                        onClick={onExit}
+                        className="mt-8 px-8 py-3 bg-black border border-white hover:bg-white hover:text-black transition-colors uppercase font-bold"
+                    >
+                        Cerrar Sesión
+                    </button>
                 </div>
             )}
 
-            <div className="mb-8 p-6 bg-black/60 rounded-xl border border-gray-800 backdrop-blur-sm transform transition-all hover:border-gray-500">
-                <p className="text-gray-300 text-lg mb-2 uppercase tracking-widest">{isIntruder ? 'Estado del Sujeto:' : 'Nivel Identificado:'}</p>
-                <div className={`text-5xl md:text-6xl font-bold mb-2 ${levelData.color} drop-shadow-[0_0_15px_rgba(0,0,0,0.8)] animate-pulse-glow`}>
-                    {levelData.nivel}
-                </div>
-                <div className={`text-2xl font-light uppercase tracking-[0.3em] text-white`}>
-                    {levelData.nombre}
+            {/* Hidden Certificate Template for Capture */}
+            <div style={{ position: 'absolute', top: '-10000px', left: '-10000px' }}>
+                <div ref={certificateRef}>
+                    <CertificateTemplate
+                        candidateName={candidateName}
+                        language={languageName}
+                        level={levelData}
+                        date={new Date().toLocaleDateString()}
+                        signature="Director de LinguaSec"
+                    />
                 </div>
             </div>
 
-            <p className={`text-gray-300 italic mb-8 text-lg px-4 border-l-2 ${isIntruder ? 'border-neon-red/50 bg-gradient-to-r from-neon-red/5' : 'border-neon-purple/50 bg-gradient-to-r from-neon-purple/5'} to-transparent py-4 text-left`}>
-            > "{mensaje}"
+            <h2 className="text-3xl font-bold text-white mb-2">Resultados de la Evaluación</h2>
+            <div className={`text-6xl font-bold mb-4 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] text-${levelData.color?.replace('text-', '') || 'neon-cyan'}`} style={{ color: levelData.color === 'text-neon-green' ? '#39ff14' : levelData.color === 'text-neon-cyan' ? '#00f3ff' : levelData.color === 'text-neon-purple' ? '#bd00ff' : '#ff003c' }}>
+                {score} / {totalQuestions}
+            </div>
+
+            <div className="mb-8">
+                <p className="text-gray-400 text-sm uppercase tracking-widest mb-2">Nivel Identificado</p>
+                <div className={`text-4xl font-bold ${levelData.color} title-glitch`}>
+                    {levelData.nivel}: {levelData.nombre}
+                </div>
+            </div>
+
+            <p className="text-gray-300 italic mb-8 border-l-4 border-gray-600 pl-4 text-left">
+                "{mensaje}"
             </p>
 
-            {/* Certificate Generator Section (Hidden for Intruders) */}
-            {!isIntruder && (
-                <div className="mb-10 bg-black/80 p-6 rounded-xl border border-gray-700 relative overflow-hidden">
-                    {/* Scanline effect */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent h-full w-full pointer-events-none animate-scan"></div>
+            {/* Certificate Section */}
+            <div className="bg-gray-900/50 p-6 rounded-xl border border-gray-700 mb-8">
+                <h3 className="text-neon-cyan font-bold mb-4 flex items-center justify-center gap-2">
+                    <span>📜</span> EMISIÓN DE CERTIFICADO OFICIAL
+                </h3>
 
-                    <h3 className="text-neon-cyan text-lg font-bold mb-4 uppercase tracking-wider flex items-center justify-center gap-2">
-                        <span>🛡️</span> Certificación Oficial
-                    </h3>
+                <input
+                    type="text"
+                    placeholder="Nombre completo del Agente"
+                    value={candidateName}
+                    onChange={(e) => setCandidateName(e.target.value)}
+                    className="w-full bg-black border border-gray-600 rounded p-3 text-white mb-4 focus:border-neon-cyan focus:outline-none font-mono text-center uppercase"
+                />
 
-                    <div className="flex flex-col gap-4 items-center max-w-md mx-auto">
-                        <input
-                            type="text"
-                            placeholder="NOMBRE CLAVE (Usuario)"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            disabled={verificationStep > 0}
-                            className="bg-gray-900/80 border border-gray-600 rounded px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-neon-cyan w-full text-center tracking-widest uppercase disabled:opacity-50"
-                        />
-
-                        {verificationStep === 0 && (
-                            <button
-                                onClick={handleVerification}
-                                onMouseEnter={playHover}
-                                className="w-full px-6 py-3 rounded bg-neon-cyan/10 border border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all duration-300 font-bold uppercase tracking-widest text-sm shadow-[0_0_10px_rgba(0,243,255,0.2)] hover:shadow-[0_0_20px_rgba(0,243,255,0.6)]"
-                            >
-                                [ INICIAR VALIDACIÓN ]
-                            </button>
-                        )}
-
-                        {verificationStep > 0 && verificationStep < 4 && (
-                            <div className="w-full bg-gray-900 border border-gray-700 rounded p-4 font-mono text-xs text-left h-24 flex flex-col justify-end text-green-400 gap-1 shadow-inner relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-green-500 animate-reveal"></div>
-                                {verificationStep >= 1 && <p>> {getLogMessage()}</p>}
-                                <p className="animate-pulse">_</p>
-                            </div>
-                        )}
-
-                        {verificationStep === 4 && (
-                            <div className="w-full animate-fade-in-up">
-                                <div className="text-neon-green text-xs mb-2 uppercase tracking-widest font-bold border-b border-neon-green/30 pb-1 mb-3">
-                                >> ACCESO CONCEDIDO
-                                </div>
-                                <button
-                                    onClick={handleDownload}
-                                    onMouseEnter={playHover}
-                                    disabled={isGenerating}
-                                    className="w-full px-6 py-3 rounded bg-neon-purple/20 border border-neon-purple text-neon-purple hover:bg-neon-purple hover:text-white transition-all duration-300 font-bold uppercase tracking-widest text-sm disabled:opacity-50 shadow-[0_0_15px_rgba(189,0,255,0.2)] hover:shadow-[0_0_25px_rgba(189,0,255,0.6)]"
-                                >
-                                    {isGenerating ? 'GENERANDO ARCHIVO...' : 'DESCARGAR CERTIFICADO OFICIAL'}
-                                </button>
-                            </div>
-                        )}
+                {/* Security Progress Bar */}
+                {isGenerating && (
+                    <div className="mb-4">
+                        <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-neon-green transition-all duration-300 ease-out"
+                                style={{ width: `${securityCheckProgress}%` }}
+                            ></div>
+                        </div>
+                        <p className="text-xs text-neon-green mt-2 font-mono animate-pulse">{securityStatus}</p>
                     </div>
-                </div>
-            )}
+                )}
+
+                <button
+                    onClick={handleDownload}
+                    onMouseEnter={playHover}
+                    disabled={isGenerating}
+                    className={`w-full py-3 rounded font-bold uppercase tracking-wider transition-all duration-300 ${isGenerating ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-neon-cyan text-black hover:bg-white hover:shadow-[0_0_20px_rgba(0,243,255,0.6)]'}`}
+                >
+                    {isGenerating ? 'Procesando...' : 'Descargar Certificado Oficial'}
+                </button>
+            </div>
 
             <div className="flex gap-4 justify-center">
                 <button
                     onClick={() => { playClick(); onRetry(); }}
+                    className="px-6 py-2 rounded-full border border-gray-600 text-gray-400 hover:border-white hover:text-white transition-all uppercase text-sm"
                     onMouseEnter={playHover}
-                    className="px-6 py-2 rounded-full text-gray-500 hover:text-neon-cyan hover:bg-neon-cyan/5 transition-all duration-300 uppercase text-xs tracking-widest border border-transparent hover:border-neon-cyan/30"
                 >
-                    [ Reiniciar ]
+                    Reintentar Misión
                 </button>
                 <button
                     onClick={() => { playClick(); onExit(); }}
+                    className="px-6 py-2 rounded-full border border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 transition-all uppercase text-sm"
                     onMouseEnter={playHover}
-                    className="px-6 py-2 rounded-full text-gray-500 hover:text-red-500 hover:bg-red-500/5 transition-all duration-300 uppercase text-xs tracking-widest border border-transparent hover:border-red-500/30"
                 >
-                    [ Salir ]
+                    Salir
                 </button>
             </div>
         </div>

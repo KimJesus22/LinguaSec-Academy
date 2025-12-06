@@ -1,6 +1,6 @@
-# 🗄️ Supabase Database Setup
+# 🗄️ Supabase Database Setup (Parte 1: Inicial)
 
-Para habilitar la persistencia de datos y la seguridad, corre los siguientes comandos en el **SQL Editor** de tu proyecto en Supabase.
+Estos comandos ya deberían haberse ejecutado. Solo ejecútalos si estás configurando el proyecto desde cero.
 
 ## 1. Crear Tabla para Resultados (`exam_results`)
 
@@ -17,27 +17,17 @@ create table exam_results (
 
 ## 2. Habilitar Row Level Security (RLS)
 
-Esto activa el sistema de seguridad para que nadie pueda leer/escribir datos sin permiso explícito.
-
 ```sql
 alter table exam_results enable row level security;
 ```
 
-## 3. Crear Políticas de Seguridad (Policies)
-
-### Política de Lectura (Select)
-*Permite a los usuarios leer SOLO sus propios exámenes.*
+## 3. Políticas de Seguridad (Policies)
 
 ```sql
 create policy "Users can view their own results"
 on exam_results for select
 using ( auth.uid() = user_id );
-```
 
-### Política de Escritura (Insert)
-*Permite a los usuarios insertar resultados SOLO si el `user_id` coincide con su propio ID autenticado.*
-
-```sql
 create policy "Users can insert their own results"
 on exam_results for insert
 with check ( auth.uid() = user_id );
@@ -47,7 +37,7 @@ with check ( auth.uid() = user_id );
 
 ## ⚙️ Variables de Entorno
 
-Asegúrate de tener un archivo `.env` en la raíz de tu proyecto con las siguientes claves (Obtenlas en *Project Settings > API*):
+Asegúrate de tener un archivo `.env` en la raíz de tu proyecto:
 
 ```env
 VITE_SUPABASE_URL=tu_url_de_supabase
