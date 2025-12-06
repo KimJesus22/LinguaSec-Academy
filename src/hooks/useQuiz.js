@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { calcularNivelMCER, getMensajeMotivacional } from '../domain/evaluation';
 
 export const useQuiz = (questions) => {
@@ -7,6 +7,39 @@ export const useQuiz = (questions) => {
     const [showResult, setShowResult] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
     const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+
+    // Security State
+    const [securityViolations, setSecurityViolations] = useState(0);
+    const [showSecurityWarning, setShowSecurityWarning] = useState(false);
+    const [isIntruder, setIsIntruder] = useState(false);
+
+    // Proctoring Logic
+    useEffect(() => {
+        if (showResult || isIntruder) return;
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setSecurityViolations(prev => {
+                    const newCount = prev + 1;
+                    if (newCount > 2) {
+                        // 3rd Strike: Terminate Exam
+                        setIsIntruder(true);
+                        setShowResult(true);
+                        return newCount;
+                    }
+                    setShowSecurityWarning(true);
+                    return newCount;
+                });
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    }, [showResult, isIntruder]);
+
+    const closeSecurityWarning = () => {
+        setShowSecurityWarning(false);
+    };
 
     const currentQuestion = questions[currentQuestionIndex];
     const progress = ((currentQuestionIndex) / questions.length) * 100;
@@ -32,12 +65,28 @@ export const useQuiz = (questions) => {
         }, 1000);
     }, [currentQuestionIndex, questions, currentQuestion, isAnswerChecked]);
 
-    const resultData = showResult ? {
-        score,
-        total: questions.length,
-        ...calcularNivelMCER(score),
-        mensaje: getMensajeMotivacional(calcularNivelMCER(score).nivel)
-    } : null;
+    // Determine Result Data based on Intruder status
+    let resultData = null;
+    if (showResult) {
+        if (isIntruder) {
+            resultData = {
+                score: 0,
+                total: questions.length,
+                nivel: "INTRUSO",
+                nombre: "ACCESO DENEGADO",
+                color: "text-neon-red",
+                mensaje: "Intento de intrusión detectado. Prueba fallida. Sus credenciales han sido reportadas."
+            };
+        } else {
+            const evalData = calcularNivelMCER(score);
+            resultData = {
+                score,
+                total: questions.length,
+                ...evalData,
+                mensaje: getMensajeMotivacional(evalData.nivel)
+            };
+        }
+    }
 
     const retry = () => {
         setCurrentQuestionIndex(0);
@@ -45,6 +94,9 @@ export const useQuiz = (questions) => {
         setShowResult(false);
         setSelectedOption(null);
         setIsAnswerChecked(false);
+        setSecurityViolations(0);
+        setIsIntruder(false);
+        setShowSecurityWarning(false);
     };
 
     return {
@@ -56,6 +108,9 @@ export const useQuiz = (questions) => {
         handleOptionClick,
         showResult,
         resultData,
-        retry
+        retry,
+        showSecurityWarning,
+        securityViolations,
+        closeSecurityWarning
     };
 };

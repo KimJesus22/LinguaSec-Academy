@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuiz } from '../hooks/useQuiz';
 import QuizQuestionView from './QuizQuestionView';
 import QuizResultUI from './QuizResultUI';
+import SecurityWarningModal from './SecurityWarningModal';
 
 const QuizComponent = ({ languageId, languageName, questions, onRetry, onExit }) => {
     const {
@@ -13,7 +14,10 @@ const QuizComponent = ({ languageId, languageName, questions, onRetry, onExit })
         handleOptionClick,
         showResult,
         resultData,
-        retry: hookRetry
+        retry: hookRetry,
+        showSecurityWarning,
+        securityViolations,
+        closeSecurityWarning
     } = useQuiz(questions);
 
     const handleRetry = () => {
@@ -21,6 +25,7 @@ const QuizComponent = ({ languageId, languageName, questions, onRetry, onExit })
         onRetry();
     };
 
+    // If intruder, resultData will be blocked
     if (showResult && resultData) {
         return (
             <QuizResultUI
@@ -31,20 +36,30 @@ const QuizComponent = ({ languageId, languageName, questions, onRetry, onExit })
                 onRetry={handleRetry}
                 onExit={onExit}
                 languageName={languageName}
+                isIntruder={resultData.nivel === "INTRUSO"}
             />
         );
     }
 
     return (
-        <QuizQuestionView
-            currentQuestion={currentQuestion}
-            currentQuestionIndex={currentQuestionIndex}
-            totalQuestions={questions.length}
-            progress={progress}
-            selectedOption={selectedOption}
-            isAnswerChecked={isAnswerChecked}
-            onOptionClick={handleOptionClick}
-        />
+        <>
+            {showSecurityWarning && (
+                <SecurityWarningModal
+                    onClose={closeSecurityWarning}
+                    attempts={securityViolations}
+                />
+            )}
+
+            <QuizQuestionView
+                currentQuestion={currentQuestion}
+                currentQuestionIndex={currentQuestionIndex}
+                totalQuestions={questions.length}
+                progress={progress}
+                selectedOption={selectedOption}
+                isAnswerChecked={isAnswerChecked}
+                onOptionClick={handleOptionClick}
+            />
+        </>
     );
 };
 

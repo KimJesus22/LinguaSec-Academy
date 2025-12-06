@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 const QuizQuestionView = ({
     currentQuestion,
@@ -9,6 +10,22 @@ const QuizQuestionView = ({
     isAnswerChecked,
     onOptionClick
 }) => {
+    const { playHover, playClick, playSuccess, playError } = useSoundEffects();
+
+    const handleOptionSelect = (index) => {
+        if (isAnswerChecked) return;
+
+        // Determine sound based on correctness (optimistic feedback directly on click if needed, 
+        // or rely on visual state, but here we trigger general click first or specific result)
+        if (index === currentQuestion.correctAnswer) {
+            playSuccess();
+        } else {
+            playError();
+        }
+
+        onOptionClick(index);
+    };
+
     return (
         <div className="w-full max-w-3xl flex flex-col gap-6 animate-fade-in-up">
             {/* Progress Bar */}
@@ -57,7 +74,8 @@ const QuizQuestionView = ({
                         return (
                             <button
                                 key={index}
-                                onClick={() => onOptionClick(index)}
+                                onClick={() => handleOptionSelect(index)}
+                                onMouseEnter={playHover}
                                 disabled={isAnswerChecked}
                                 className={`p-5 rounded-xl border-2 text-left transition-all duration-300 font-medium relative overflow-hidden font-mono ${buttonStyle}`}
                             >

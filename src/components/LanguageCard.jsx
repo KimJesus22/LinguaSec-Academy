@@ -1,29 +1,30 @@
 import React from 'react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 const LanguageCard = ({ language, flag, nativeText, onClick }) => {
+    const { playHover } = useSoundEffects();
+
     return (
         <div
             onClick={onClick}
-            className="group relative bg-cyber-dark border border-gray-800 rounded-xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:border-neon-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.3)] flex flex-col items-center justify-center gap-4 text-center h-80 w-full max-w-sm"
+            onMouseEnter={playHover}
+            className="w-full max-w-sm bg-cyber-dark border border-gray-700 rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:border-neon-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.3)] group relative overflow-hidden"
         >
-            <div className="text-6xl transform transition-transform duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_10px_rgba(0,243,255,0.5)]">
-                {flag}
-            </div>
+            {/* Background Glitch Effect on Hover */}
+            <div className="absolute inset-0 bg-neon-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-            <div className="flex flex-col gap-2">
-                <h3 className="text-2xl font-bold text-white tracking-widest uppercase transition-colors group-hover:text-neon-cyan">
-                    {language}
-                </h3>
-                <span className="text-4xl text-gray-500 font-serif group-hover:text-neon-purple transition-colors duration-300">
+            <div className="flex flex-col items-center relative z-10">
+                <span className="text-6xl mb-4 drop-shadow-md">{flag}</span>
+                <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-neon-cyan transition-colors">{language}</h3>
+                <p className="text-gray-400 text-sm font-mono tracking-widest uppercase items-center flex gap-2">
+                    <span className="w-2 h-2 rounded-full bg-gray-600 group-hover:bg-neon-green transition-colors"></span>
                     {nativeText}
-                </span>
+                </p>
             </div>
 
-            <div className="absolute bottom-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-neon-cyan text-sm tracking-widest font-mono border-b border-neon-cyan pb-1">
-                    INICIAR / START
-                </span>
-            </div>
+            {/* Decorative corner lines */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-transparent group-hover:border-neon-cyan transition-all duration-500"></div>
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-transparent group-hover:border-neon-cyan transition-all duration-500"></div>
         </div>
     );
 };
