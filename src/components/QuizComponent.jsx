@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuiz } from '../hooks/useQuiz';
 import QuizQuestionView from './QuizQuestionView';
 import QuizResultUI from './QuizResultUI';
 import SecurityWarningModal from './SecurityWarningModal';
+import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 const QuizComponent = ({ languageId, languageName, questions, onRetry, onExit }) => {
+    const { user } = useAuth();
+
     const {
         currentQuestionIndex,
         currentQuestion,
@@ -19,6 +23,32 @@ const QuizComponent = ({ languageId, languageName, questions, onRetry, onExit })
         securityViolations,
         closeSecurityWarning
     } = useQuiz(questions);
+
+    // Save result to DB when finished
+    useEffect(() => {
+        if (showResult && resultData && user) {
+            const saveResult = async () => {
+                const { error } = await supabase
+                    .from('exam_results')
+                    .insert([
+                        {
+                            user_id: user.id,
+                            language: languageName,
+                            score: resultData.score,
+                            level: resultData.nivel
+                        }
+                    ]);
+
+                if (error) {
+                    console.error("Error saving result to DB:", error);
+                } else {
+                    console.log("Exam result saved successfully.");
+                }
+            };
+            saveResult();
+        }
+    }, [showResult, resultData, user, languageName]);
+
 
     const handleRetry = () => {
         hookRetry();

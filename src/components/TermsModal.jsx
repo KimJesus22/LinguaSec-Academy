@@ -27,17 +27,17 @@ const TermsModal = ({ onClose }) => {
 
                     <h3 className="text-neon-cyan font-bold mt-4">1. TRATAMIENTO DE DATOS</h3>
                     <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                        Los datos personales recabados (incluyendo nombre, correo electrónico y resultados biométricos de nivelación) serán protegidos, incorporados y tratados en el Sistema de Datos Personales de la Agencia, con fundamento en los artículos pertinentes de la legislación vigente. La confidencialidad está garantizada mediante cifrado de grado militar.
                     </p>
 
                     <h3 className="text-neon-cyan font-bold mt-4">2. FINALIDAD DEL TRATAMIENTO</h3>
                     <p>
-                        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+                        Sus datos se utilizarán exclusivamente para las siguientes finalidades: (i) Evaluación precisa de competencias lingüísticas; (ii) Generación y validación de certificados de seguridad; (iii) Monitoreo de integridad académica (Proctoring) para prevenir fraudes o suplantación de identidad durante las pruebas.
                     </p>
 
                     <h3 className="text-neon-cyan font-bold mt-4">3. TRANSFERENCIA DE DATOS (INTERPOL)</h3>
                     <p>
-                        Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.
+                        Se le informa que sus resultados y metadatos de sesión podrán ser compartidos con autoridades internacionales y la base de datos central de INTERPOL únicamente en casos de detección de anomalías graves, intentos de hackeo al sistema o intrusiones no autorizadas (Protocolo "INTRUSO").
                     </p>
 
                     <p className="mt-8 text-gray-500 italic text-center border-t border-gray-700 pt-4">

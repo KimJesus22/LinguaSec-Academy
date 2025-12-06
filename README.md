@@ -1,6 +1,6 @@
 # 🛡️ LinguaSec Academy
 
-![Version](https://img.shields.io/badge/version-1.0.0-neon_cyan) ![Status](https://img.shields.io/badge/status-OPERATIONAL-neon_green) ![Security](https://img.shields.io/badge/security-MAXIMUM-neon_purple)
+![Version](https://img.shields.io/badge/version-1.1.0-neon_cyan) ![Status](https://img.shields.io/badge/status-OPERATIONAL-neon_green) ![Security](https://img.shields.io/badge/security-MAXIMUM-neon_purple)
 
 > **"Dominio del Idioma. Seguridad Total."**
 
@@ -22,35 +22,57 @@
     - Respuestas Incorrectas: Alerta **Roja Neón**.
 - **Animaciones**: Efectos de **Glitch** en títulos, barras de progreso dinámicas y transiciones suaves (`fade-in-up`).
 
-### 🔐 Simulación de Seguridad & Certificación
-- **Protocolo de Validación**: Antes de obtener resultados, el sistema ejecuta una secuencia simulada de seguridad:
-    1.  Verificación de Identidad.
-    2.  Consulta a bases de datos de **Interpol**.
-    3.  Validación de firma digital **NOM-151**.
-- **Certificados Oficiales**: Generación de documentos PDF profesionales al instante usando `jspdf`.
-    - Incluye: Nombre del agente, Nivel obtenido, Fecha, Firma del "Director de Seguridad" y bordes tecnológicos.
+### 🔊 Efectos de Sonido Tácticos
+- **Audio Sintetizado**: Sistema basado en **Web Audio API** para generar efectos de sonido en tiempo real sin assets externos.
+- **Feedback Auditivo**:
+    - *Hover*: Sonido de alta frecuencia "Tech Blip".
+    - *Click*: Sonido percusivo de confirmación mecánica.
+- **Control Global**: Botón persistente de **Mute** (🔊/🔇) para operaciones sigilosas.
+
+### 👁️ Sistema de Proctoring (Anti-Trampas)
+- **Vigilancia Activa**: Detección de anomalías mediante `visibilitychange` (cambio de pestaña o minimizado).
+- **Protocolo de 3 Strikes**:
+    1.  **Advertencia 1 y 2**: Modal de **ALERTA ROJA** bloqueante.
+    2.  **Strike 3**: Terminación inmediata de la prueba (Score 0) y marcaje como **INTRUSO**.
+
+### ⚖️ Cumplimiento Legal (LFPDPPP)
+- **Consentimiento Obligatorio**: Bloqueo de inicio de prueba hasta la aceptación explícita de términos.
+- **Transparencia**: Acceso a "Términos de Servicio" simulados mediante modal integrado.
+
+### 🔐 Simulación de Seguridad & Certificación Visual
+- **Protocolo de Validación**: Secuencia simulada: Identidad -> Interpol -> NOM-151 -> Acceso Concedido.
+- **Certificados de Alta Fidelidad**:
+    - Renderizado visual mediante `html2canvas` para soporte total de caracteres asiáticos (CJK) y estilos CSS complejos.
+    - Generación de PDF (`jspdf`) con bordes decorativos, firma digital y fecha de emisión.
 
 ---
 
 ## 🏗️ Arquitectura del Software
 
-El proyecto sigue los principios de **Clean Architecture** para garantizar escalabilidad y mantenibilidad, separando la lógica de negocio de la interfaz de usuario.
+El proyecto sigue los principios de **Clean Architecture** para garantizar escalabilidad y mantenibilidad.
 
 ### 📂 Estructura de Directorios
 
 ```bash
 src/
 ├── components/         # UI Pura (Presentational Components)
-│   ├── QuizQuestionView.jsx  # Vista de preguntas y opciones
-│   └── QuizResultUI.jsx      # Vista de resultados y simulación de seguridad
-├── domain/             # Reglas de Negocio (Framework Agnostic)
-│   └── evaluation.js         # Lógica de cálculo MCER y mensajes motivacionales
-├── hooks/              # Lógica de Aplicación (State Management)
-│   └── useQuiz.js            # Custom Hook para manejar el flujo del quiz
-├── services/           # Servicios Externos e Infraestructura
-│   └── certificateService.js # Generación de PDF con jsPDF
+│   ├── CertificateTemplate.jsx # Plantilla visual oculta para certificados
+│   ├── QuizQuestionView.jsx    # Vista de preguntas
+│   ├── QuizResultUI.jsx        # Resultados y orquestación de certificado
+│   ├── SecurityWarningModal.jsx # Alerta de Proctoring
+│   ├── TermsModal.jsx          # Modal legal
+│   └── LanguageCard.jsx        # Tarjetas de selección
+├── context/            # Estado Global
+│   └── SoundContext.jsx        # Gestión de Mute
+├── domain/             # Reglas de Negocio
+│   └── evaluation.js           # Lógica MCER
+├── hooks/              # Lógica de Aplicación
+│   ├── useQuiz.js              # Máquina de estados del Quiz y Proctoring
+│   └── useSoundEffects.js      # Sintetizador de audio
+├── services/           # Servicios Externos
+│   └── certificateService.js   # Generación de PDF (html2canvas + jspdf)
 └── data/               # Fuentes de Datos
-    └── quizData.js           # Banco de preguntas por idioma
+    └── quizData.js             # Banco de preguntas
 ```
 
 ---
@@ -61,7 +83,7 @@ Requisitos previos: `Node.js` (v16 o superior).
 
 1.  **Clonar el repositorio**:
     ```bash
-    git clone https://github.com/tu-usuario/linguasec-academy.git
+    git clone https://github.com/KimJesus22/LinguaSec-Academy.git
     cd linguasec-academy
     ```
 
@@ -83,19 +105,9 @@ Requisitos previos: `Node.js` (v16 o superior).
 ## 🛠️ Tecnologías Utilizadas
 
 - **Core**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
-- **Estilos**: [Tailwind CSS](https://tailwindcss.com/) (Configuración personalizada con animaciones y colores extendidos).
-- **Fuentes**: [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (Google Fonts).
-- **PDF**: [jspdf](https://github.com/parallax/jsPDF) para generación de documentos en el cliente.
-
----
-
-## 📸 Capturas de Pantalla
-
-*(Las capturas de pantalla se generan automáticamente en la carpeta de artefactos de documentación)*
-
-- **Pantalla de Inicio**: Selección de idioma con tarjetas interactivas.
-- **Quiz Activo**: Interfaz inmersiva con barra de progreso.
-- **Resultados**: Dashbboard de nivelación con secuencia de seguridad activa.
+- **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
+- **PDF & Captura**: [html2canvas](https://html2canvas.hertzen.com/) + [jspdf](https://github.com/parallax/jsPDF)
+- **Fuentes**: [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) & [Open Sans](https://fonts.google.com/specimen/Open+Sans)
 
 ---
 
