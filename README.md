@@ -1,6 +1,7 @@
 # 🛡️ LinguaSec Academy
 
 ![Version](https://img.shields.io/badge/version-1.1.0-neon_cyan) ![Status](https://img.shields.io/badge/status-OPERATIONAL-neon_green) ![Security](https://img.shields.io/badge/security-MAXIMUM-neon_purple)
+[![Deploy](https://img.shields.io/badge/Live_View-Vercel-000000?style=flat&logo=vercel&logoColor=white)](https://lingua-sec-academy.vercel.app/)
 
 > **"Dominio del Idioma. Seguridad Total."**
 
@@ -14,10 +15,12 @@
 - **Idiomas Soportados**: Inglés (🇺🇸), Japonés (🇯🇵) y Coreano (🇰🇷).
 - **Progresión Dinámica**: 10 preguntas que avanzan en dificultad (Básico A1 -> Avanzado C2).
 - **Lógica MCER**: Algoritmo interno que calcula el nivel Marco Común Europeo de Referencia basado en el puntaje.
-- **Nuevos Modos de Aprendizaje**:
-    - **Modo Terminal**: Lecciones interactivas vía línea de comandos (CLI). Escribe comandos en el idioma objetivo para desbloquear sistemas.
-    - **Novela Visual (Scenario)**: Simulaciones de negocios y cultura con toma de decisiones que afectan la "Confianza" del interlocutor.
-    - **Audio Intercept**: Lecciones de escucha usando `Web Speech API` con interfaz visual de radiofrecuencia.
+- **Nuevos Modos de Aprendizaje y Gamificación**:
+    - **Skill Tree (Árbol de Habilidades)**: Dashboard interactivo estilo videojuego/IDE que visualiza el progreso del usuario. Incluye estados "Bloqueado", "Activo" y "Completado" en una línea de tiempo vertical.
+    - **Modo Parcheo (Protocolo de Revisión)**: Sistema de feedback inmediato donde el usuario "parchea" sus vulnerabilidades (errores). Explica pedagógicamente el *porqué* de cada respuesta correcta.
+    - **Modo Terminal**: Lecciones interactivas vía línea de comandos (CLI).
+    - **Novela Visual (Scenario)**: Simulaciones de negocios y cultura.
+    - **Audio Intercept**: Lecciones de escucha usando `Web Speech API`.
 
 ### 🎨 Experiencia Cyberpunk (UI/UX)
 - **Estética Hacker**: Fondo oscuro profundo (`#0a0a0a`), tipografía `JetBrains Mono` y paleta de colores neón (Cyan, Purple, Green, Red).
@@ -60,6 +63,7 @@ El proyecto sigue los principios de **Clean Architecture** para garantizar escal
 ```bash
 src/
 ├── components/         # UI Pura (Presentational Components)
+│   ├── MissionDashboard.jsx    # Skill Tree & Roadmap Visualizer
 │   ├── CertificateTemplate.jsx # Plantilla visual oculta para certificados
 │   ├── QuizQuestionView.jsx    # Vista de preguntas
 │   ├── QuizResultUI.jsx        # Resultados y orquestación de certificado

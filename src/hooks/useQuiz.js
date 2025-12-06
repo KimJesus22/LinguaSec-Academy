@@ -7,6 +7,7 @@ export const useQuiz = (questions) => {
     const [showResult, setShowResult] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
     const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+    const [wrongAnswers, setWrongAnswers] = useState([]); // Nuevo estado
 
     // Security State
     const [securityViolations, setSecurityViolations] = useState(0);
@@ -52,6 +53,8 @@ export const useQuiz = (questions) => {
 
         if (index === currentQuestion.correctAnswer) {
             setScore(prev => prev + 1);
+        } else {
+            setWrongAnswers(prev => [...prev, currentQuestion]);
         }
 
         setTimeout(() => {
@@ -109,6 +112,7 @@ export const useQuiz = (questions) => {
         showResult,
         resultData,
         retry,
+        wrongAnswers, // Nuevo
         showSecurityWarning,
         securityViolations,
         closeSecurityWarning

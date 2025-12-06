@@ -15,12 +15,14 @@ import { logUserAction } from './services/auditService'
 
 import TerminalLesson from './components/TerminalLesson'
 import ListeningLesson from './components/ListeningLesson'
+import MissionDashboard from './components/MissionDashboard'
 
 function App() {
   const { user, signOut } = useAuth();
   const [terminalLang, setTerminalLang] = useState(null);
   const [scenarioId, setScenarioId] = useState(null);
   const [listeningLang, setListeningLang] = useState(null);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(null)
   const [quizStarted, setQuizStarted] = useState(false)
   const [isTacticalMode, setIsTacticalMode] = useState(false);
@@ -125,6 +127,23 @@ function App() {
 
   if (listeningLang) {
     return <ListeningLesson language={listeningLang} onExit={() => setListeningLang(null)} />
+  }
+
+  if (showDashboard) {
+    return (
+      <div className="min-h-screen w-full bg-cyber-black flex flex-col items-center justify-center p-8 relative overflow-hidden text-white font-sans">
+        <MissionDashboard
+          userLevel="B1" // TODO: Connect to real User Progress context
+          onSelectMission={(mission) => {
+            if (mission.type === 'Terminal') setTerminalLang('en'); // Simplify for demo
+            if (mission.type === 'Scenario') setScenarioId('negotiation-tokyo'); // Simplify for demo
+            if (mission.type === 'Audio') setListeningLang('en'); // Simplify for demo
+            setShowDashboard(false);
+          }}
+          onExit={() => setShowDashboard(false)}
+        />
+      </div>
+    )
   }
 
   return (
@@ -310,6 +329,7 @@ function App() {
                 questions={isTacticalMode ? tacticalData : quizData[selectedLanguage.id]}
                 onRetry={handleRetry}
                 onExit={() => { setSelectedLanguage(null); setIsTacticalMode(false); }}
+                onShowDashboard={() => { setSelectedLanguage(null); setIsTacticalMode(false); setShowDashboard(true); }} // Direct path to dashboard
               />
             )}
           </>

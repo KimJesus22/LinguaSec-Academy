@@ -5,7 +5,7 @@ import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useAuth } from '../context/AuthContext';
 import { logUserAction } from '../services/auditService';
 
-const QuizResultUI = ({ score, totalQuestions, levelData, mensaje, onRetry, onExit, languageName, isIntruder = false }) => {
+const QuizResultUI = ({ score, totalQuestions, levelData, mensaje, onRetry, onExit, languageName, isIntruder = false, onStartPatching, wrongAnswersCount = 0, onShowDashboard }) => {
     const percentage = Math.round((score / totalQuestions) * 100);
     const [candidateName, setCandidateName] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -141,6 +141,19 @@ const QuizResultUI = ({ score, totalQuestions, levelData, mensaje, onRetry, onEx
                 </button>
             </div>
 
+            {/* Patching Protocol Button */}
+            {onStartPatching && (
+                <div className="mb-8 animate-pulse">
+                    <button
+                        onClick={() => { playClick(); onStartPatching(); }}
+                        className="w-full py-4 rounded font-bold uppercase tracking-widest bg-red-600/20 border-2 border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition-all shadow-[0_0_20px_rgba(255,0,0,0.3)] flex items-center justify-center gap-2"
+                        onMouseEnter={playHover}
+                    >
+                        <span>⚠️</span> {wrongAnswersCount} VULNERABILIDADES DETECTADAS - INICIAR PARCHEO
+                    </button>
+                </div>
+            )}
+
             <div className="flex gap-4 justify-center">
                 <button
                     onClick={() => { playClick(); onRetry(); }}
@@ -155,6 +168,16 @@ const QuizResultUI = ({ score, totalQuestions, levelData, mensaje, onRetry, onEx
                     onMouseEnter={playHover}
                 >
                     Salir
+                </button>
+            </div>
+
+            {/* Dashboard Link */}
+            <div className="mt-8 pt-8 border-t border-gray-800">
+                <button
+                    onClick={() => { playClick(); onShowDashboard && onShowDashboard(); }}
+                    className="text-neon-cyan hover:text-white underline uppercase tracking-widest text-sm"
+                >
+                    [ 🗺️ ACCEDER AL CENTRO DE MANDO ]
                 </button>
             </div>
         </div>
