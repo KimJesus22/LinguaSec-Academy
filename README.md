@@ -14,6 +14,10 @@
 - **Idiomas Soportados**: Inglés (🇺🇸), Japonés (🇯🇵) y Coreano (🇰🇷).
 - **Progresión Dinámica**: 10 preguntas que avanzan en dificultad (Básico A1 -> Avanzado C2).
 - **Lógica MCER**: Algoritmo interno que calcula el nivel Marco Común Europeo de Referencia basado en el puntaje.
+- **Nuevos Modos de Aprendizaje**:
+    - **Modo Terminal**: Lecciones interactivas vía línea de comandos (CLI). Escribe comandos en el idioma objetivo para desbloquear sistemas.
+    - **Novela Visual (Scenario)**: Simulaciones de negocios y cultura con toma de decisiones que afectan la "Confianza" del interlocutor.
+    - **Audio Intercept**: Lecciones de escucha usando `Web Speech API` con interfaz visual de radiofrecuencia.
 
 ### 🎨 Experiencia Cyberpunk (UI/UX)
 - **Estética Hacker**: Fondo oscuro profundo (`#0a0a0a`), tipografía `JetBrains Mono` y paleta de colores neón (Cyan, Purple, Green, Red).
@@ -71,6 +75,8 @@ src/
 │   └── useSoundEffects.js      # Sintetizador de audio
 ├── services/           # Servicios Externos
 │   └── certificateService.js   # Generación de PDF (html2canvas + jspdf)
+├── utils/              # Utilidades
+│   └── sm2.js                  # Algoritmo de Repetición Espaciada (SuperMemo 2)
 └── data/               # Fuentes de Datos
     └── quizData.js             # Banco de preguntas
 ```
@@ -158,6 +164,7 @@ Requisitos previos: `Node.js` (v16 o superior).
 
 - **Core**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
 - **Estilos**: [Tailwind CSS](https://tailwindcss.com/)
+- **Audio**: [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) (Síntesis de voz)
 - **PDF & Captura**: [html2canvas](https://html2canvas.hertzen.com/) + [jspdf](https://github.com/parallax/jsPDF)
 - **Fuentes**: [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) & [Open Sans](https://fonts.google.com/specimen/Open+Sans)
 

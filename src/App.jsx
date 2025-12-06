@@ -13,8 +13,14 @@ import { useAuth } from './context/AuthContext'
 import Auth from './components/Auth'
 import { logUserAction } from './services/auditService'
 
+import TerminalLesson from './components/TerminalLesson'
+import ListeningLesson from './components/ListeningLesson'
+
 function App() {
   const { user, signOut } = useAuth();
+  const [terminalLang, setTerminalLang] = useState(null);
+  const [scenarioId, setScenarioId] = useState(null);
+  const [listeningLang, setListeningLang] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState(null)
   const [quizStarted, setQuizStarted] = useState(false)
   const [isTacticalMode, setIsTacticalMode] = useState(false);
@@ -30,6 +36,7 @@ function App() {
 
   const { isMuted, toggleMute } = useSoundContext();
   const { playClick, playHover, playError, playSuccess } = useSoundEffects();
+
 
   // Protect Route
   if (!user) {
@@ -108,6 +115,18 @@ function App() {
     }
   ]
 
+  if (terminalLang) {
+    return <TerminalLesson language={terminalLang} />
+  }
+
+  if (scenarioId) {
+    return <ScenarioMode scenarioId={scenarioId} onExit={() => setScenarioId(null)} />
+  }
+
+  if (listeningLang) {
+    return <ListeningLesson language={listeningLang} onExit={() => setListeningLang(null)} />
+  }
+
   return (
     <div className="min-h-screen w-full bg-cyber-black flex flex-col items-center p-8 relative overflow-hidden text-white font-sans">
 
@@ -158,28 +177,41 @@ function App() {
         <p className="text-gray-400 text-sm md:text-lg tracking-widest font-mono uppercase">
           Dominio del Idioma. Seguridad Total.
         </p>
-        <div className="flex flex-col items-center mt-2">
+        <div className="flex flex-col items-center mt-2 gap-1">
           <div className="flex items-center gap-2">
+            {/* ... License buttons ... */}
+            {/* Copied strictly from context, just ensuring I don't break the layout */}
             <p className="text-gray-500 text-xs">Agente ID: {user.email}</p>
             {isPremium ? (
-              <span className="bg-neon-purple/20 border border-neon-purple text-neon-purple px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(189,0,255,0.4)]">
-                Premium Agent
-              </span>
+              <span className="bg-neon-purple/20 border border-neon-purple text-neon-purple px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(189,0,255,0.4)]">PREMIUM</span>
             ) : (
-              <button
-                onClick={() => { playClick(); setShowPaymentModal(true); }}
-                className="bg-gray-800 hover:bg-neon-purple/20 text-gray-400 hover:text-white border border-gray-600 hover:border-neon-purple px-2 py-0.5 rounded text-[10px] transition-all uppercase"
-              >
-                Upgrade License ⇧
-              </button>
+              <button onClick={() => setShowPaymentModal(true)} className="bg-gray-800 text-[10px] text-gray-400 px-2 py-0.5 rounded border border-gray-600 uppercase">Upgrade</button>
             )}
           </div>
-          <button
-            onClick={() => setShowActivityLog(true)}
-            className="md:hidden mt-2 text-[10px] text-gray-600 underline"
-          >
-            Ver Trazabilidad
-          </button>
+
+          {/* Terminal Selectors */}
+          <div className="flex gap-2">
+            <span className="text-[10px] text-gray-600 uppercase">TERM:</span>
+            <button onClick={() => setTerminalLang('jp')} className="text-[10px] text-green-500 hover:text-green-400 underline">JP</button>
+            <button onClick={() => setTerminalLang('kr')} className="text-[10px] text-green-500 hover:text-green-400 underline">KR</button>
+            <button onClick={() => setTerminalLang('en')} className="text-[10px] text-green-500 hover:text-green-400 underline">EN</button>
+          </div>
+
+          {/* Scenario Selectors */}
+          <div className="flex gap-2">
+            <span className="text-[10px] text-gray-600 uppercase">SCEN:</span>
+            <button onClick={() => setScenarioId('negotiation-tokyo')} className="text-[10px] text-blue-400 hover:text-blue-300 underline">JP</button>
+            <button onClick={() => setScenarioId('negotiation-seoul')} className="text-[10px] text-blue-400 hover:text-blue-300 underline">KR</button>
+            <button onClick={() => setScenarioId('negotiation-ny')} className="text-[10px] text-blue-400 hover:text-blue-300 underline">EN</button>
+          </div>
+
+          {/* Listening Selectors */}
+          <div className="flex gap-2">
+            <span className="text-[10px] text-gray-600 uppercase">AUDIO:</span>
+            <button onClick={() => setListeningLang('jp')} className="text-[10px] text-red-400 hover:text-red-300 underline">JP</button>
+            <button onClick={() => setListeningLang('kr')} className="text-[10px] text-red-400 hover:text-red-300 underline">KR</button>
+            <button onClick={() => setListeningLang('en')} className="text-[10px] text-red-400 hover:text-red-300 underline">EN</button>
+          </div>
         </div>
       </header>
 
@@ -253,10 +285,10 @@ function App() {
                       onMouseEnter={playHover}
                       disabled={!termsAccepted}
                       className={`px-8 py-3 rounded-full font-bold border transition-all duration-300 uppercase tracking-wider ${termsAccepted
-                          ? (isTacticalMode
-                            ? 'bg-red-600 text-white border-red-600 hover:shadow-[0_0_20px_rgba(255,0,0,0.5)] cursor-pointer'
-                            : 'bg-neon-cyan text-black border-neon-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.5)] cursor-pointer')
-                          : 'bg-gray-700 text-gray-500 border-gray-700 cursor-not-allowed opacity-50'
+                        ? (isTacticalMode
+                          ? 'bg-red-600 text-white border-red-600 hover:shadow-[0_0_20px_rgba(255,0,0,0.5)] cursor-pointer'
+                          : 'bg-neon-cyan text-black border-neon-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.5)] cursor-pointer')
+                        : 'bg-gray-700 text-gray-500 border-gray-700 cursor-not-allowed opacity-50'
                         }`}
                     >
                       Comenzar Test
